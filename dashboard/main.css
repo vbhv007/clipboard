@@ -1,0 +1,18 @@
+*{
+
+	padding: 10px;
+	/*border:1px solid;*/
+}
+.title{
+	font-size:2.5em;
+	height:10%;
+}
+.note_container{
+	height:90%;
+}
+.note_title{
+	height:10%;
+}
+.note_main{
+	height:90%;
+}
