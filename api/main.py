@@ -104,10 +104,11 @@ def get_private_page(username, urlString):
 
         # page is there => update it
         else:
-            privateDataId = privateData.replace_one(
-                {'_id': str(query['_id'])}, {'pageTitle': pageTitle, 'pageBody': pageBody})
 
-            data = privateData.find_one({'_id': privateDataId})
+            updatedData = privateData.find_one_and_update(
+                {'_id': query['_id']}, {'$set': {'pageTitle': pageTitle, 'pageBody': pageBody}})
+
+            data = privateData.find_one({'_id': updatedData['_id']})
             output = {
                 'Success': True, 'urlString': data['urlString'], 'Username': data['username'], 'pageTitle': data['pageTitle'], 'pageBody': data['pageBody'], '_id': str(data['_id'])}
 
