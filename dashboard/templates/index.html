@@ -4,10 +4,29 @@
 	<title>ClipBoard</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-	
+	<style type="text/css">
+		*{
 
+	padding: 10px;
+		/*border:1px solid;*/
+	}
+	.title{
+		font-size:5vh;
+		height:10%;
+	}
+	.note_container{
+		height:90%;
+	}
+	.note_title{
+		height:10%;
+		/*margin-bottom: 2px;*/
+	}
+	.note_main{
+		height:90%;
+		/*margin-top: 2px;*/
+	}
 
-	<link rel="stylesheet" type="text/css" href="main.css">
+	</style>
 
 </head>
 <body class='h-100 w-100'>
@@ -30,7 +49,7 @@
 		</div>
 
 		<div class="note_container">
-			<form class="h-100">
+			<form class="h-100" action="" method="post">
 				<div class="note_title">
 					<input type="text" class="form-control h-100" name="note_title" id="title" placeholder="Title">
 				</div>
