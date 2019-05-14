@@ -7,7 +7,7 @@ import string
 app = Flask(__name__)
 
 app.config['MONGO_DBNAME'] = 'clipboardDB'
-app.config['MONGO_URI'] = 'mongodb+srv://vbhv:qwerty123@clipboarddb-vm1cu.mongodb.net/test?retryWrites=true'
+app.config['MONGO_URI'] = 'add your mongo_uri'
 
 mongo = PyMongo(app)
 
@@ -15,6 +15,9 @@ mongo = PyMongo(app)
 def generateToken():
     x = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
     return x
+
+
+# TODO: Add a beautiful home page
 
 # home page
 @app.route('/')
