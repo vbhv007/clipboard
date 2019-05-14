@@ -17,7 +17,7 @@ def generateToken():
     return x
 
 # public data
-@app.route('/<urlString>', methods=['GET', 'POST'])
+@app.route('/public/<urlString>', methods=['GET', 'POST'])
 def get_public_page(urlString):
     publicData = mongo.db.publicData
     query = publicData.find_one({'urlString': urlString})
@@ -103,7 +103,7 @@ def get_token(username):
     return jsonify({'results': output})
 
 # getting private user data
-@app.route('/getpage/<username>/<urlString>', methods=['POST'])
+@app.route('/private/getpage/<username>/<urlString>', methods=['POST'])
 def get_private_page(username, urlString):
     userToken = request.json['userToken']
     usersData = mongo.db.usersData
@@ -118,14 +118,15 @@ def get_private_page(username, urlString):
             output = {
                 'Success': True, 'urlString': query['urlString'], 'Username': query['username'], 'pageTitle': query['pageTitle'], 'pageBody': query['pageBody'], '_id': str(query['_id'])}
         else:
-            output = {'Success': False, 'Comment': 'User or Page not found'}
+            output = {'Success': False, 'Comment': 'Page not found'}
     else:
-        output = {'Success': False, 'Comment': 'User not found'}
+        output = {'Success': False,
+                  'Comment': 'User not found or Token is incorrect'}
 
     return jsonify({'results': output})
 
 # adding private user data
-@app.route('/addpage/<username>/<urlString>', methods=['POST'])
+@app.route('/private/addpage/<username>/<urlString>', methods=['POST'])
 def add_private_page(username, urlString):
 
     pageTitle = request.json['pageTitle']
