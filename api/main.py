@@ -16,6 +16,12 @@ def generateToken():
     x = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
     return x
 
+# home page
+@app.route('/')
+def root():
+    return "It's working"
+
+
 # public data
 @app.route('/public/<urlString>', methods=['GET', 'POST'])
 def get_public_page(urlString):
