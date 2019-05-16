@@ -36,7 +36,8 @@ def get_public_page(urlString):
             output = {
                 'Success': True, 'urlString': query['urlString'], 'pageTitle': query['pageTitle'], 'pageBody': query['pageBody'], '_id': str(query['_id'])}
         else:
-            output = {'Success': False, 'Comment': 'No data found'}
+            output = {'Success': False,
+                      'Comment': 'No data found for the given url.'}
 
     elif request.method == 'POST':
         pageTitle = request.json['pageTitle']
