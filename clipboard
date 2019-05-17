@@ -2,6 +2,8 @@
 import sys
 import requests as r
 import argparse
+import time
+from multiprocessing import Process
 
 
 class bcolors:
@@ -13,6 +15,16 @@ class bcolors:
     END = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+
+def animation():
+    print(bcolors.BOLD + "Processing... " + bcolors.END)
+    animationString = "|/-\\"
+    idx = 0
+    while True:
+        print(animationString[idx % len(animationString)], end="\r")
+        idx += 1
+        time.sleep(0.1)
 
 
 ap = argparse.ArgumentParser()
@@ -29,9 +41,12 @@ url = args["url"]
 inTitle = args["title"]
 
 if (method == "get"):
+    animateProcess = Process(target=animation)
+    animateProcess.start()
     res = r.get("http://clipboard-api.herokuapp.com/public/" + str(url))
     sCode = res.status_code
     res = res.json()['results']
+    animateProcess.terminate()
     if sCode == 200 and res['Success']:
         outTitle = res['pageTitle']
         body = res['pageBody']
@@ -50,10 +65,13 @@ if (method == "get"):
 elif(method == "add"):
     print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
     body = input().strip()
+    animateProcess = Process(target=animation)
+    animateProcess.start()
     res = r.post("http://clipboard-api.herokuapp.com/public/" +
                  str(url), json={'pageBody': body, 'pageTitle': inTitle})
     sCode = res.status_code
     res = res.json()['results']
+    animateProcess.terminate()
     if sCode == 200 and res['Success']:
         outTitle = res['pageTitle']
         body = res['pageBody']
