@@ -17,6 +17,21 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
+def successPrint(title, body):
+    print(bcolors.BOLD + bcolors.BLUE + "Title: " + bcolors.END,
+          bcolors.GREEN + title + bcolors.END)
+    print()
+    print(bcolors.BOLD + bcolors.BLUE + "Body: " + bcolors.END,
+          bcolors.GREEN + body + bcolors.END)
+
+
+def errorPrint(comment):
+    print(bcolors.BOLD + bcolors.FAIL +
+          "Umm this is embarassing but there is an error." + bcolors.END)
+    print(bcolors.BOLD + bcolors.BLUE + "Reason: " + bcolors.END,
+          bcolors.GREEN + comment + bcolors.END)
+
+
 def animation():
     print(bcolors.BOLD + "Processing... " + bcolors.END)
     animationString = "|/-\\"
@@ -50,17 +65,10 @@ if (method == "get"):
     if sCode == 200 and res['Success']:
         outTitle = res['pageTitle']
         body = res['pageBody']
-        print(bcolors.BOLD + bcolors.BLUE + "Title: " + bcolors.END,
-              bcolors.GREEN + outTitle + bcolors.END)
-        print()
-        print(bcolors.BOLD + bcolors.BLUE + "Body: " + bcolors.END,
-              bcolors.GREEN + body + bcolors.END)
+        successPrint(outTitle, body)
     else:
         comment = res["Comment"]
-        print(bcolors.BOLD + bcolors.FAIL +
-              "Umm this is embarassing but there is an error." + bcolors.END)
-        print(bcolors.BOLD + bcolors.BLUE + "Reason: " + bcolors.END,
-              bcolors.GREEN + comment + bcolors.END)
+        errorPrint(comment)
 
 elif(method == "add"):
     print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
@@ -77,17 +85,10 @@ elif(method == "add"):
         body = res['pageBody']
         print(bcolors.BOLD + bcolors.WARNING +
               "Done!" + bcolors.END)
-        print(bcolors.BOLD + bcolors.BLUE + "Title: " + bcolors.END,
-              bcolors.GREEN + outTitle + bcolors.END)
-        print()
-        print(bcolors.BOLD + bcolors.BLUE + "Body: " + bcolors.END,
-              bcolors.GREEN + body + bcolors.END)
+        successPrint(outTitle, body)
     else:
         comment = res["Comment"]
-        print(bcolors.BOLD + bcolors.FAIL +
-              "Umm this is embarassing but there is an error." + bcolors.END)
-        print(bcolors.BOLD + bcolors.BLUE + "Reason: " + bcolors.END,
-              bcolors.GREEN + comment + bcolors.END)
+        errorPrint(comment)
 
 else:
     print(bcolors.BOLD + bcolors.FAIL +
