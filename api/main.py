@@ -52,7 +52,12 @@ def get_public_page(urlString):
             output = {
                 'Success': True, 'urlString': data['urlString'], 'pageTitle': data['pageTitle'], 'pageBody': data['pageBody'], '_id': str(data['_id'])}
         else:
-            output = {'Success': False, 'Comment': 'Url already exists'}
+            updatedData = publicData.find_one_and_update(
+                {'_id': query['_id']}, {'$set': {'pageTitle': pageTitle, 'pageBody': pageBody}})
+
+            data = publicData.find_one({'_id': updatedData['_id']})
+            output = {
+                'Success': True, 'urlString': data['urlString'], 'pageTitle': data['pageTitle'], 'pageBody': data['pageBody'], '_id': str(data['_id'])}
 
     return jsonify({'results': output})
 
@@ -167,7 +172,6 @@ def add_private_page(username, urlString):
 
     # page is there => update it
     else:
-
         updatedData = privateData.find_one_and_update(
             {'_id': query['_id']}, {'$set': {'pageTitle': pageTitle, 'pageBody': pageBody}})
 
