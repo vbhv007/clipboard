@@ -4,6 +4,8 @@ import requests as r
 import argparse
 import time
 from multiprocessing import Process
+from pathlib import Path
+import os
 
 
 class bcolors:
@@ -44,16 +46,19 @@ def animation():
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--method", required=True,
-                help="method to be used: get or add")
+                help="method to be used")
 ap.add_argument("-t", "--title", required=False,
                 help="title for the page [optional]")
 ap.add_argument("-u", "--url", required=False,
                 help="url of the page")
+ap.add_argument("-n", "--username", required=False,
+                help="username of the user")
 args = vars(ap.parse_args())
 
 method = args["method"]
 url = args["url"]
 inTitle = args["title"]
+username = args["username"]
 
 if (method == "get"):
     animateProcess = Process(target=animation)
@@ -89,6 +94,30 @@ elif(method == "add"):
     else:
         comment = res["Comment"]
         errorPrint(comment)
+
+elif(method == "login"):
+    credentialsFile = Path("/home/vbhv/bin/.credentials")
+    if(credentialsFile.is_file()):
+        f = open("/home/vbhv/bin/.credentials", 'rb')
+        credentials = f.read()
+        username = credentials.decode('utf-8').split('::')[0]
+        print(bcolors.FAIL +
+              "You are already logged in as", username)
+        print()
+        print(bcolors.HEADER +
+              "Logout to login with another username" + bcolors.END)
+    else:
+        print(bcolors.BOLD + "Enter password:" + bcolors.END)
+        passwd = input().strip()
+        secret = username + "::" + passwd
+        f = open("/home/vbhv/bin/.credentials", 'w')
+        f.write(str(secret))
+        f.close()
+        print(bcolors.GREEN + "You are logged in now." + bcolors.END)
+
+elif(method == "logout"):
+    os.remove('/home/vbhv/bin/.credentials')
+    print(bcolors.GREEN + "Logged out." + bcolors.END)
 
 else:
     print(bcolors.BOLD + bcolors.FAIL +
