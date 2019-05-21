@@ -20,7 +20,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-def successPrint(title, body):
+def success_print(title, body):
     print(bcolors.BOLD + bcolors.BLUE + "Title: " + bcolors.END,
           bcolors.GREEN + title + bcolors.END)
     print()
@@ -28,7 +28,7 @@ def successPrint(title, body):
           bcolors.GREEN + body + bcolors.END)
 
 
-def errorPrint(comment):
+def error_print(comment):
     print(bcolors.BOLD + bcolors.FAIL +
           "Umm this is embarassing but there is an error." + bcolors.END)
     print(bcolors.BOLD + bcolors.BLUE + "Reason: " + bcolors.END,
@@ -43,6 +43,26 @@ def animation():
         print(animationString[idx % len(animationString)], end="\r")
         idx += 1
         time.sleep(0.1)
+
+
+def get_credentials():
+    credentialsFile = Path("/home/vbhv/bin/.credentials")
+    if(credentialsFile.is_file()):
+        f = open("/home/vbhv/bin/.credentials", 'rb')
+        credentials = f.read()
+        credentials = credentials.decode('utf-8').split('::')
+        username = credentials[0]
+        passwd = credentials[1]
+        res = r.post("http://clipboard-api.herokuapp.com/gettoken/" +
+                     str(username), json={'passwd': passwd})
+        sCode = res.status_code
+        res = res.json()['results']
+        if sCode == 200 and res['Success']:
+            return [username, passwd, res["userToken"]]
+        else:
+            return [None, None, None]
+    else:
+        return [None, None, None]
 
 
 ap = argparse.ArgumentParser()
@@ -64,52 +84,88 @@ username = args["username"]
 if (method == "get"):
     if(url == None):
         comment = "Url is not provided"
-        errorPrint(comment)
+        error_print(comment)
     else:
-        animateProcess = Process(target=animation)
-        animateProcess.start()
-        res = r.get("http://clipboard-api.herokuapp.com/public/" + str(url))
-        sCode = res.status_code
-        res = res.json()['results']
-        animateProcess.terminate()
-        if sCode == 200 and res['Success']:
-            outTitle = res['pageTitle']
-            body = res['pageBody']
-            successPrint(outTitle, body)
+        storedCredentials = get_credentials()
+        (username, passwd, userToken) = (
+            storedCredentials[0], storedCredentials[1], storedCredentials[2])
+        if(username != None):
+            pass
         else:
-            comment = res["Comment"]
-            errorPrint(comment)
+            animateProcess = Process(target=animation)
+            animateProcess.start()
+            res = r.get(
+                "http://clipboard-api.herokuapp.com/public/" + str(url))
+            sCode = res.status_code
+            res = res.json()['results']
+            animateProcess.terminate()
+            if sCode == 200 and res['Success']:
+                outTitle = res['pageTitle']
+                body = res['pageBody']
+                success_print(outTitle, body)
+            else:
+                comment = res["Comment"]
+                error_print(comment)
 
 elif(method == "add"):
     if(inTitle == None):
-        comment = "Username is not provided"
-        errorPrint(comment)
+        inTitle = ""
+    if(url == None):
+        comment = "Url is not provided"
+        error_print(comment)
     else:
-        print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
-        body = input().strip()
-        animateProcess = Process(target=animation)
-        animateProcess.start()
-        res = r.post("http://clipboard-api.herokuapp.com/public/" +
-                     str(url), json={'pageBody': body, 'pageTitle': inTitle})
-        sCode = res.status_code
-        res = res.json()['results']
-        animateProcess.terminate()
-        if sCode == 200 and res['Success']:
-            outTitle = res['pageTitle']
-            body = res['pageBody']
-            print(bcolors.BOLD + bcolors.WARNING +
-                  "Done!" + bcolors.END)
-            successPrint(outTitle, body)
+        storedCredentials = get_credentials()
+        (username, passwd, userToken) = (
+            storedCredentials[0], storedCredentials[1], storedCredentials[2])
+        if(username != None):
+            if(userToken == None):
+                comment = res["Comment"]
+                error_print(comment)
+            else:
+                print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
+                body = input().strip()
+                animateProcess = Process(target=animation)
+                animateProcess.start()
+                reqUrl = "http://clipboard-api.herokuapp.com/public/private/addpage/" + \
+                    username + "/"
+                jsonObj = {'userToken': userToken,
+                           'pageTitle': inTitle, 'pageBody': body}
+                res = r.post(reqUrl + str(url), json=jsonObj)
+                sCode = res.status_code
+                res = res.json()['results']
+                animateProcess.terminate()
+                if sCode == 200 and res['Success']:
+                    outTitle = res['pageTitle']
+                    body = res['pageBody']
+                    print(bcolors.BOLD + bcolors.WARNING +
+                          "Done!", res["Username"])
+                    success_print(outTitle, body)
+                else:
+                    comment = res["Comment"]
+                    error_print(comment)
         else:
-            comment = res["Comment"]
-            errorPrint(comment)
+            print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
+            body = input().strip()
+            animateProcess = Process(target=animation)
+            animateProcess.start()
+            res = r.post("http://clipboard-api.herokuapp.com/public/" +
+                         str(url), json={'pageBody': body, 'pageTitle': inTitle})
+            sCode = res.status_code
+            res = res.json()['results']
+            animateProcess.terminate()
+            if sCode == 200 and res['Success']:
+                outTitle = res['pageTitle']
+                body = res['pageBody']
+                print(bcolors.BOLD + bcolors.WARNING +
+                      "Done!" + bcolors.END)
+                success_print(outTitle, body)
+            else:
+                comment = res["Comment"]
+                error_print(comment)
 
 elif(method == "login"):
-    credentialsFile = Path("/home/vbhv/bin/.credentials")
-    if(credentialsFile.is_file()):
-        f = open("/home/vbhv/bin/.credentials", 'rb')
-        credentials = f.read()
-        username = credentials.decode('utf-8').split('::')[0]
+    storedCredentials = get_credentials()
+    if(storedCredentials[0] != None):
         print(bcolors.FAIL +
               "You are already logged in as", username)
         print(bcolors.HEADER +
@@ -131,7 +187,7 @@ elif(method == "login"):
             print(bcolors.GREEN + "You are logged in now." + bcolors.END)
         else:
             comment = res["Comment"]
-            errorPrint(comment)
+            error_print(comment)
 
 elif(method == "logout"):
     os.remove('/home/vbhv/bin/.credentials')
@@ -140,7 +196,7 @@ elif(method == "logout"):
 elif(method == "signup"):
     if(username == None):
         comment = "Username is not provided"
-        errorPrint(comment)
+        error_print(comment)
     else:
         print(bcolors.BOLD + "Enter name of the user:" + bcolors.END)
         name = input().strip()
@@ -157,7 +213,7 @@ elif(method == "signup"):
             print(bcolors.GREEN + "User created!" + bcolors.END)
         else:
             comment = res["Comment"]
-            errorPrint(comment)
+            error_print(comment)
 
 else:
     print(bcolors.BOLD + bcolors.FAIL +
