@@ -53,10 +53,13 @@ def get_credentials():
         credentials = credentials.decode('utf-8').split('::')
         username = credentials[0]
         passwd = credentials[1]
+        animateProcess = Process(target=animation)
+        animateProcess.start()
         res = r.post("http://clipboard-api.herokuapp.com/gettoken/" +
                      str(username), json={'passwd': passwd})
         sCode = res.status_code
         res = res.json()['results']
+        animateProcess.terminate()
         if sCode == 200 and res['Success']:
             return [username, passwd, res["userToken"]]
         else:
@@ -90,7 +93,7 @@ if (method == "get"):
         (username, passwd, userToken) = (
             storedCredentials[0], storedCredentials[1], storedCredentials[2])
         if(username != None):
-            pass
+            print('pass')
         else:
             animateProcess = Process(target=animation)
             animateProcess.start()
@@ -126,11 +129,10 @@ elif(method == "add"):
                 body = input().strip()
                 animateProcess = Process(target=animation)
                 animateProcess.start()
-                reqUrl = "http://clipboard-api.herokuapp.com/public/private/addpage/" + \
-                    username + "/"
-                jsonObj = {'userToken': userToken,
-                           'pageTitle': inTitle, 'pageBody': body}
-                res = r.post(reqUrl + str(url), json=jsonObj)
+                reqUrl = "http://clipboard-api.herokuapp.com/private/addpage/" + \
+                    str(username) + "/" + str(url)
+                res = r.post(
+                    reqUrl, json={'userToken': userToken, 'pageTitle': inTitle, 'pageBody': body})
                 sCode = res.status_code
                 res = res.json()['results']
                 animateProcess.terminate()
@@ -171,6 +173,7 @@ elif(method == "login"):
         print(bcolors.HEADER +
               "Logout to login with another username" + bcolors.END)
     else:
+        print(bcolors.BOLD)
         passwd = getpass.getpass()
         animateProcess = Process(target=animation)
         animateProcess.start()
