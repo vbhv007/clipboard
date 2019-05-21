@@ -1,5 +1,5 @@
 # clipboard :clipboard:
-### This is CLI pastebin. (Well CLI and Web eventually..)
+#### This is a CLI pastebin. (Well CLI and Web eventually..)
 
 # What are the Components
 * A REST API built with flask which deals with the MongoDB database stuff (hosted [here](http://clipboard-api.herokuapp.com)).
