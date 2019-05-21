@@ -6,6 +6,7 @@ import time
 from multiprocessing import Process
 from pathlib import Path
 import os
+import getpass
 
 
 class bcolors:
@@ -114,8 +115,7 @@ elif(method == "login"):
         print(bcolors.HEADER +
               "Logout to login with another username" + bcolors.END)
     else:
-        print(bcolors.BOLD + "Enter password:" + bcolors.END)
-        passwd = input().strip()
+        passwd = getpass.getpass()
         animateProcess = Process(target=animation)
         animateProcess.start()
         res = r.post("http://clipboard-api.herokuapp.com/gettoken/" +
@@ -144,8 +144,8 @@ elif(method == "signup"):
     else:
         print(bcolors.BOLD + "Enter name of the user:" + bcolors.END)
         name = input().strip()
-        print(bcolors.BOLD + "Enter password:" + bcolors.END)
-        passwd = input().strip()
+        print(bcolors.BOLD)
+        passwd = getpass.getpass()
         animateProcess = Process(target=animation)
         animateProcess.start()
         res = r.post("http://clipboard-api.herokuapp.com/adduser/" +
