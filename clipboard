@@ -61,39 +61,47 @@ inTitle = args["title"]
 username = args["username"]
 
 if (method == "get"):
-    animateProcess = Process(target=animation)
-    animateProcess.start()
-    res = r.get("http://clipboard-api.herokuapp.com/public/" + str(url))
-    sCode = res.status_code
-    res = res.json()['results']
-    animateProcess.terminate()
-    if sCode == 200 and res['Success']:
-        outTitle = res['pageTitle']
-        body = res['pageBody']
-        successPrint(outTitle, body)
-    else:
-        comment = res["Comment"]
+    if(url == None):
+        comment = "Url is not provided"
         errorPrint(comment)
+    else:
+        animateProcess = Process(target=animation)
+        animateProcess.start()
+        res = r.get("http://clipboard-api.herokuapp.com/public/" + str(url))
+        sCode = res.status_code
+        res = res.json()['results']
+        animateProcess.terminate()
+        if sCode == 200 and res['Success']:
+            outTitle = res['pageTitle']
+            body = res['pageBody']
+            successPrint(outTitle, body)
+        else:
+            comment = res["Comment"]
+            errorPrint(comment)
 
 elif(method == "add"):
-    print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
-    body = input().strip()
-    animateProcess = Process(target=animation)
-    animateProcess.start()
-    res = r.post("http://clipboard-api.herokuapp.com/public/" +
-                 str(url), json={'pageBody': body, 'pageTitle': inTitle})
-    sCode = res.status_code
-    res = res.json()['results']
-    animateProcess.terminate()
-    if sCode == 200 and res['Success']:
-        outTitle = res['pageTitle']
-        body = res['pageBody']
-        print(bcolors.BOLD + bcolors.WARNING +
-              "Done!" + bcolors.END)
-        successPrint(outTitle, body)
-    else:
-        comment = res["Comment"]
+    if(inTitle == None):
+        comment = "Username is not provided"
         errorPrint(comment)
+    else:
+        print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
+        body = input().strip()
+        animateProcess = Process(target=animation)
+        animateProcess.start()
+        res = r.post("http://clipboard-api.herokuapp.com/public/" +
+                     str(url), json={'pageBody': body, 'pageTitle': inTitle})
+        sCode = res.status_code
+        res = res.json()['results']
+        animateProcess.terminate()
+        if sCode == 200 and res['Success']:
+            outTitle = res['pageTitle']
+            body = res['pageBody']
+            print(bcolors.BOLD + bcolors.WARNING +
+                  "Done!" + bcolors.END)
+            successPrint(outTitle, body)
+        else:
+            comment = res["Comment"]
+            errorPrint(comment)
 
 elif(method == "login"):
     credentialsFile = Path("/home/vbhv/bin/.credentials")
@@ -103,21 +111,53 @@ elif(method == "login"):
         username = credentials.decode('utf-8').split('::')[0]
         print(bcolors.FAIL +
               "You are already logged in as", username)
-        print()
         print(bcolors.HEADER +
               "Logout to login with another username" + bcolors.END)
     else:
         print(bcolors.BOLD + "Enter password:" + bcolors.END)
         passwd = input().strip()
-        secret = username + "::" + passwd
-        f = open("/home/vbhv/bin/.credentials", 'w')
-        f.write(str(secret))
-        f.close()
-        print(bcolors.GREEN + "You are logged in now." + bcolors.END)
+        animateProcess = Process(target=animation)
+        animateProcess.start()
+        res = r.post("http://clipboard-api.herokuapp.com/gettoken/" +
+                     str(username), json={'passwd': passwd})
+        sCode = res.status_code
+        animateProcess.terminate()
+        res = res.json()['results']
+        if sCode == 200 and res['Success']:
+            secret = username + "::" + passwd
+            f = open("/home/vbhv/bin/.credentials", 'w')
+            f.write(str(secret))
+            f.close()
+            print(bcolors.GREEN + "You are logged in now." + bcolors.END)
+        else:
+            comment = res["Comment"]
+            errorPrint(comment)
 
 elif(method == "logout"):
     os.remove('/home/vbhv/bin/.credentials')
     print(bcolors.GREEN + "Logged out." + bcolors.END)
+
+elif(method == "signup"):
+    if(username == None):
+        comment = "Username is not provided"
+        errorPrint(comment)
+    else:
+        print(bcolors.BOLD + "Enter name of the user:" + bcolors.END)
+        name = input().strip()
+        print(bcolors.BOLD + "Enter password:" + bcolors.END)
+        passwd = input().strip()
+        animateProcess = Process(target=animation)
+        animateProcess.start()
+        res = r.post("http://clipboard-api.herokuapp.com/adduser/" +
+                     str(username), json={'passwd': passwd, 'name': name})
+        sCode = res.status_code
+        animateProcess.terminate()
+        res = res.json()['results']
+        if sCode == 200 and res['Success']:
+            print(bcolors.GREEN + "User created!" + bcolors.END)
+        else:
+            comment = res["Comment"]
+            errorPrint(comment)
 
 else:
     print(bcolors.BOLD + bcolors.FAIL +
