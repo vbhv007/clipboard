@@ -51,8 +51,7 @@ def get_credentials():
         f = open("/home/vbhv/bin/.credentials", 'rb')
         credentials = f.read()
         credentials = credentials.decode('utf-8').split('::')
-        username = credentials[0]
-        passwd = credentials[1]
+        (username, passwd) = (credentials[0], credentials[1])
         animateProcess = Process(target=animation)
         animateProcess.start()
         res = r.post("http://clipboard-api.herokuapp.com/gettoken/" +
@@ -66,6 +65,34 @@ def get_credentials():
             return [None, None, None]
     else:
         return [None, None, None]
+
+
+def add_page(reqUrl, jsonObj):
+    animateProcess = Process(target=animation)
+    animateProcess.start()
+    if(jsonObj != None):
+        res = r.post(reqUrl, json=jsonObj)
+    else:
+        res = r.get(reqUrl)
+    sCode = res.status_code
+    res = res.json()['results']
+    animateProcess.terminate()
+
+    return [sCode, res]
+
+
+def print_page(sCode, res, username):
+    if sCode == 200 and res['Success']:
+        outTitle = res['pageTitle']
+        body = res['pageBody']
+        if(username != None):
+            print(bcolors.BOLD + bcolors.WARNING + "Done!", username)
+        else:
+            print(bcolors.BOLD + bcolors.WARNING + "Done!" + bcolors.END)
+        success_print(outTitle, body)
+    else:
+        comment = res["Comment"]
+        error_print(comment)
 
 
 ap = argparse.ArgumentParser()
@@ -95,20 +122,10 @@ if (method == "get"):
         if(username != None):
             print('pass')
         else:
-            animateProcess = Process(target=animation)
-            animateProcess.start()
-            res = r.get(
-                "http://clipboard-api.herokuapp.com/public/" + str(url))
-            sCode = res.status_code
-            res = res.json()['results']
-            animateProcess.terminate()
-            if sCode == 200 and res['Success']:
-                outTitle = res['pageTitle']
-                body = res['pageBody']
-                success_print(outTitle, body)
-            else:
-                comment = res["Comment"]
-                error_print(comment)
+            reqUrl = "http://clipboard-api.herokuapp.com/public/" + str(url)
+            pageData = add_page(reqUrl, None)
+            (sCode, res) = (pageData[0], pageData[1])
+            print_page(sCode, res, None)
 
 elif(method == "add"):
     if(inTitle == None):
@@ -127,43 +144,21 @@ elif(method == "add"):
             else:
                 print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
                 body = input().strip()
-                animateProcess = Process(target=animation)
-                animateProcess.start()
                 reqUrl = "http://clipboard-api.herokuapp.com/private/addpage/" + \
                     str(username) + "/" + str(url)
-                res = r.post(
-                    reqUrl, json={'userToken': userToken, 'pageTitle': inTitle, 'pageBody': body})
-                sCode = res.status_code
-                res = res.json()['results']
-                animateProcess.terminate()
-                if sCode == 200 and res['Success']:
-                    outTitle = res['pageTitle']
-                    body = res['pageBody']
-                    print(bcolors.BOLD + bcolors.WARNING +
-                          "Done!", res["Username"])
-                    success_print(outTitle, body)
-                else:
-                    comment = res["Comment"]
-                    error_print(comment)
+                jsonObj = {'userToken': userToken,
+                           'pageTitle': inTitle, 'pageBody': body}
+                pageData = add_page(reqUrl, jsonObj)
+                (sCode, res) = (pageData[0], pageData[1])
+                print_page(sCode, res, res["Username"])
         else:
             print(bcolors.BOLD + "Enter Body text:" + bcolors.END)
             body = input().strip()
-            animateProcess = Process(target=animation)
-            animateProcess.start()
-            res = r.post("http://clipboard-api.herokuapp.com/public/" +
-                         str(url), json={'pageBody': body, 'pageTitle': inTitle})
-            sCode = res.status_code
-            res = res.json()['results']
-            animateProcess.terminate()
-            if sCode == 200 and res['Success']:
-                outTitle = res['pageTitle']
-                body = res['pageBody']
-                print(bcolors.BOLD + bcolors.WARNING +
-                      "Done!" + bcolors.END)
-                success_print(outTitle, body)
-            else:
-                comment = res["Comment"]
-                error_print(comment)
+            reqUrl = "http://clipboard-api.herokuapp.com/public/" + str(url)
+            jsonObj = {'pageTitle': inTitle, 'pageBody': body}
+            pageData = add_page(reqUrl, jsonObj)
+            (sCode, res) = (pageData[0], pageData[1])
+            print_page(sCode, res, None)
 
 elif(method == "login"):
     storedCredentials = get_credentials()
@@ -175,19 +170,16 @@ elif(method == "login"):
     else:
         print(bcolors.BOLD)
         passwd = getpass.getpass()
-        animateProcess = Process(target=animation)
-        animateProcess.start()
-        res = r.post("http://clipboard-api.herokuapp.com/gettoken/" +
-                     str(username), json={'passwd': passwd})
-        sCode = res.status_code
-        animateProcess.terminate()
-        res = res.json()['results']
+        reqUrl = "http://clipboard-api.herokuapp.com/gettoken/" + str(username)
+        jsonObj = {'passwd': passwd}
+        pageData = add_page(reqUrl, jsonObj)
+        (sCode, res) = (pageData[0], pageData[1])
         if sCode == 200 and res['Success']:
             secret = username + "::" + passwd
             f = open("/home/vbhv/bin/.credentials", 'w')
             f.write(str(secret))
             f.close()
-            print(bcolors.GREEN + "You are logged in now." + bcolors.END)
+            print(bcolors.GREEN + "You are logged in now. All the notes made will be private by default." + bcolors.END)
         else:
             comment = res["Comment"]
             error_print(comment)
@@ -205,13 +197,10 @@ elif(method == "signup"):
         name = input().strip()
         print(bcolors.BOLD)
         passwd = getpass.getpass()
-        animateProcess = Process(target=animation)
-        animateProcess.start()
-        res = r.post("http://clipboard-api.herokuapp.com/adduser/" +
-                     str(username), json={'passwd': passwd, 'name': name})
-        sCode = res.status_code
-        animateProcess.terminate()
-        res = res.json()['results']
+        reqUrl = "http://clipboard-api.herokuapp.com/adduser/" + str(username)
+        jsonObj = {'passwd': passwd, 'name': name}
+        pageData = add_page(reqUrl, jsonObj)
+        (sCode, res) = (pageData[0], pageData[1])
         if sCode == 200 and res['Success']:
             print(bcolors.GREEN + "User created!" + bcolors.END)
         else:
