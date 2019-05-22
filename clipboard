@@ -120,7 +120,12 @@ if (method == "get"):
         (username, passwd, userToken) = (
             storedCredentials[0], storedCredentials[1], storedCredentials[2])
         if(username != None):
-            print('pass')
+            reqUrl = "http://clipboard-api.herokuapp.com/private/getpage/" + \
+                str(username) + "/" + str(url)
+            jsonObj = {'userToken': userToken}
+            pageData = add_page(reqUrl, jsonObj)
+            (sCode, res) = (pageData[0], pageData[1])
+            print_page(sCode, res, username)
         else:
             reqUrl = "http://clipboard-api.herokuapp.com/public/" + str(url)
             pageData = add_page(reqUrl, None)
