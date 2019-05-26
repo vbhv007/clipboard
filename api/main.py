@@ -24,6 +24,10 @@ def generateToken():
 def root():
     return render_template('index.html')
 
+@app.route('/static/')
+def static_page():
+    return render_template('index.html')
+
 
 # public data
 @app.route('/public/<urlString>', methods=['GET', 'POST'])
