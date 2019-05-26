@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_pymongo import PyMongo
 import hash
 import random
@@ -22,7 +22,7 @@ def generateToken():
 # home page
 @app.route('/')
 def root():
-    return "It's working"
+    return render_template('index.html')
 
 
 # public data
