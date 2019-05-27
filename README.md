@@ -2,7 +2,7 @@
 #### This is a CLI pastebin. (Well CLI and Web eventually..)
 
 # What are the Components
-* A REST API built with flask which deals with the MongoDB database stuff (hosted [here](http://clipboard-api.herokuapp.com)).
+* A [REST API](https://github.com/vbhv007/clipboard-API) built with flask which deals with the MongoDB database stuff.
 * A cli python app which users can use to do certain tasks if only they want to do it. (Seriously no pressure here..).
 * A web frontend which I'm hoping to write in Angular coz why not?
 
